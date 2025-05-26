@@ -19,11 +19,11 @@ def analyze_model_performance(csv_path: str, dataset_name: str):
 
     result = {
         "Dataset": dataset_name,
-        "Shielded Mean": round(shield_rmse.mean(), 4),
-        "KKTSTE Mean": round(kkt_rmse.mean(), 4),
-        "ΔRMSE (KKT - Shield)": round(delta_rmse.mean(), 4),
-        "t-statistic": round(t_stat, 4),
-        "p-value": round(p_val, 4),
+        "Shielded Mean": round(shield_rmse.mean(), 6),
+        "KKTSTE Mean": round(kkt_rmse.mean(), 6),
+        "ΔRMSE (KKT - Shield)": round(delta_rmse.mean(), 6),
+        "t-statistic": round(t_stat, 6),
+        "p-value": round(p_val, 6),
         "Significant @ 0.05": p_val < 0.05
     }
 

@@ -166,9 +166,11 @@ class BasicMLP(nn.Module):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_size, 32),
-            nn.ReLU(inplace=True),
+            nn.LeakyReLU(inplace=True),
+            nn.BatchNorm1d(32),
             nn.Linear(32, 64),
-            nn.ReLU(inplace=True),
+            nn.LeakyReLU(inplace=True),
+            nn.BatchNorm1d(64),
             nn.Linear(64, output_size)
         )
 
