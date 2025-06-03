@@ -1,6 +1,18 @@
 #!/bin/bash
-python3 model_run.py --data-dir url --optimizer sgd
-python3 model_run.py --data-dir faulty-steel-plates
-python3 model_run.py --data-dir lcld --train-fraction 0.1
-python3 model_run.py --data-dir news
-python3 analyze_results.py
+
+datasets=("url" "faulty-steel-plates" "lcld" "news")
+architectures=("shallow" "deep")
+
+for dataset in "${datasets[@]}"; do
+    for arch in "${architectures[@]}"; do
+        cmd="python3 model_run.py --data-dir $dataset --base-arch $arch"
+        if [ "$dataset" = "lcld" ]; then
+            cmd="$cmd --train-fraction 0.1"
+        fi
+        if [ "$dataset" = "url" ]; then
+            cmd="$cmd --optimizer sgd"
+        fi
+        echo "Running: $cmd"
+        eval $cmd
+    done
+done
