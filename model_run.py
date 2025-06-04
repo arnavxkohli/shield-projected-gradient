@@ -67,23 +67,19 @@ def load_data(
 ):
     df = pd.read_csv(csv_path)
 
-    # Hash string columns to integers (cheap ordinal encoding)
     for col in df.select_dtypes(object).columns:
         df[col] = df[col].apply(lambda x: hash(x) % 10**6)
 
-    # Parse constraints and identify targets
     ordering, constraints = parse_constraints_file(constraints_file)
     ordering, constraints, rev_map = remap_constraint_variables(ordering, constraints)
     target_cols = [df.columns[int(var.split("_")[1])] for var in rev_map.values()]
     feature_cols = [c for c in df.columns if c not in target_cols]
 
-    # Optional label mapping
     if "status" in df and df["status"].dtype == object:
         df["status"] = df["status"].map({"legitimate": 0, "phishing": 1})
 
     X, y = df[feature_cols], df[target_cols]
 
-    # Subsample training set if requested
     if train_fraction < 1.0:
         idx = X.sample(frac=train_fraction, random_state=seed).index
         X, y = X.loc[idx], y.loc[idx]
@@ -95,7 +91,6 @@ def load_data(
         X_trainval, y_trainval, test_size=val_size, random_state=seed
     )
 
-    # Column-wise preprocessing
     cont_feats = [c for c in feature_cols if df[c].nunique() > 2]
     cat_feats = [c for c in feature_cols if c not in cont_feats]
     preproc = ColumnTransformer(
@@ -110,7 +105,6 @@ def load_data(
     else:
         target_scaler = None
 
-    # Convert to tensors
     to_tensor = lambda arr: torch.tensor(arr, dtype=torch.float32)
     X_train_t = to_tensor(preproc.fit_transform(X_train))
     X_val_t = to_tensor(preproc.transform(X_val))
@@ -164,9 +158,9 @@ class ShallowMLP(nn.Module):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, 32),
-            nn.ReLU(inplace=True),
+            nn.LeakyReLU(inplace=True),
             nn.Linear(32, 64),
-            nn.ReLU(inplace=True),
+            nn.LeakyReLU(inplace=True),
             nn.Linear(64, output_dim),
         )
 
@@ -228,7 +222,7 @@ class ShieldedMLPWithKKTSTE(nn.Module):
 def train_epoch(
     model: nn.Module,
     loader: DataLoader,
-    optim_: optim.Optimizer,
+    opt: optim.Optimizer,
     constraints: list[Constraint],
     device: torch.device,
 ):
@@ -236,11 +230,11 @@ def train_epoch(
     tot_loss, batches, sat_batches = 0.0, 0, 0
     for xb, yb in loader:
         xb, yb = xb.to(device), yb.to(device)
-        optim_.zero_grad()
+        opt.zero_grad()
         out = model(xb)
         loss = F.mse_loss(out, yb)
         loss.backward()
-        optim_.step()
+        opt.step()
 
         sat_batches += validate_constraints(constraints, out, logging.getLogger(), verbose=False)
         tot_loss += loss.item()
@@ -278,48 +272,48 @@ def eval_epoch(
     return rmse, sat_batches, batches
 
 
-def main(cfg):
+def main(args):
     device = get_device()
-    out_dir = Path("out") / cfg.data_dir
+    out_dir = Path("out") / args.data_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    logger = setup_logging(out_dir / f"{cfg.base_arch}_log.txt")
+    logger = setup_logging(out_dir / f"{args.base_arch}_log.txt")
     logger.info(f"Using device: {device}")
 
-    results_csv = out_dir / f"final_rmses_{cfg.base_arch}.csv"
+    results_csv = out_dir / f"final_rmses_{args.base_arch}.csv"
     results_csv.write_text("model,trial,test_rmse,test_sat\n")
 
-    base_cls = ARCH_MAP[cfg.base_arch]
+    base_cls = ARCH_MAP[args.base_arch]
 
-    for trial in range(cfg.trials):
-        seed = cfg.seed + trial
+    for trial in range(args.trials):
+        seed = args.seed + trial
         set_seed(seed)
-        logger.info(f"\n=== Trial {trial + 1}/{cfg.trials} | Seed={seed} ===")
+        logger.info(f"\n=== Trial {trial + 1}/{args.trials} | Seed={seed} ===")
 
         data = load_data(
-            Path("data") / cfg.data_dir / "data.csv",
-            Path("data") / cfg.data_dir / "constraints.txt",
-            test_size=cfg.test_size,
-            val_size=cfg.val_size,
+            Path("data") / args.data_dir / "data.csv",
+            Path("data") / args.data_dir / "constraints.txt",
+            test_size=args.test_size,
+            val_size=args.val_size,
             seed=seed,
-            scale_targets=cfg.scale_targets,
-            train_fraction=cfg.train_fraction,
+            scale_targets=args.scale_targets,
+            train_fraction=args.train_fraction,
         )
         (train_d, val_d, test_d, constraints, in_dim, out_dim, scaler) = data
-        loaders = make_dataloaders((train_d, val_d, test_d), cfg.batch_size)
+        loaders = make_dataloaders((train_d, val_d, test_d), args.batch_size)
 
         for name, ctor in [
             (base_cls.__name__.capitalize(), lambda: base_cls(in_dim, out_dim)),
-            ("ShieldedMLP", lambda: ShieldedMLP(base_cls(in_dim, out_dim), out_dim, Path("data") / cfg.data_dir / "constraints.txt")),
-            ("ShieldedMLPWithKKTSTE", lambda: ShieldedMLPWithKKTSTE(base_cls(in_dim, out_dim), out_dim, Path("data") / cfg.data_dir / "constraints.txt")),
+            ("ShieldedMLP", lambda: ShieldedMLP(base_cls(in_dim, out_dim), out_dim, Path("data") / args.data_dir / "constraints.txt")),
+            ("ShieldedMLPWithKKTSTE", lambda: ShieldedMLPWithKKTSTE(base_cls(in_dim, out_dim), out_dim, Path("data") / args.data_dir / "constraints.txt")),
         ]:
             model = ctor().to(device)
-            opt = (optim.Adam if cfg.optimizer == "adam" else optim.SGD)(model.parameters(), lr=cfg.lr)
+            opt = (optim.Adam if args.optimizer == "adam" else optim.SGD)(model.parameters(), lr=args.lr)
 
-            for epoch in range(1, cfg.epochs + 1):
+            for epoch in range(1, args.epochs + 1):
                 tloss, tsat, _ = train_epoch(model, loaders["train"], opt, constraints, device)
                 vrmse, vsat, _ = eval_epoch(model, loaders["val"], constraints, scaler, device)
-                logger.info(f"{name:>24} | Epoch {epoch:02d}/{cfg.epochs} | "
+                logger.info(f"{name:>24} | Epoch {epoch:02d}/{args.epochs} | "
                             f"loss {tloss:.4f} | val RMSE {vrmse:.4f} | val sat {vsat}")
 
             trmse, tsat, _ = eval_epoch(model, loaders["test"], constraints, scaler, device)

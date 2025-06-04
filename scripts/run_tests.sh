@@ -9,9 +9,6 @@ for dataset in "${datasets[@]}"; do
         if [ "$dataset" = "lcld" ]; then
             cmd="$cmd --train-fraction 0.1"
         fi
-        if [ "$dataset" = "url" ]; then
-            cmd="$cmd --optimizer sgd"
-        fi
         echo "Running: $cmd"
         eval $cmd
     done
