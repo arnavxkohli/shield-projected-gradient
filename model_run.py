@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# TODO: Cite the paper: A Unified Framework for Adversarial Attack and Defense in Constrained Feature Space for moeva data
+
 from __future__ import annotations
 import argparse, logging, random, sys, time
 from pathlib import Path
@@ -22,6 +24,7 @@ from pishield.linear_requirements.parser import (
     remap_constraint_variables,
 )
 from pishield.linear_requirements.shield_layer import ShieldLayer
+from pishield.linear_requirements.adjusted_constraint_loss import adjusted_constraint_loss
 from kkt_ste import KKTShieldSTE, build_constraint_matrix
 
 
@@ -195,17 +198,19 @@ ARCH_MAP = {
 
 
 class ShieldedMLP(nn.Module):
-    def __init__(self, base_net: ShallowMLP | DeepMLP, output_dim: int, constraints_file: Path):
+    def __init__(self, base_net: ShallowMLP | DeepMLP, output_dim: int, 
+                 constraints_file: Path):
         super().__init__()
         self.mlp = base_net
         self.shield = ShieldLayer(output_dim, constraints_file)
 
-    def forward(self, x):
-        return self.shield(self.mlp(x))
+    def forward(self, x, y=None):
+        return self.shield(self.mlp(x), y)
 
 
 class ShieldedMLPWithKKTSTE(nn.Module):
-    def __init__(self, base_net: ShallowMLP | DeepMLP, output_dim: int, constraints_file: Path):
+    def __init__(self, base_net: ShallowMLP | DeepMLP, output_dim: int, 
+                 constraints_file: Path):
         super().__init__()
         self.mlp = base_net
         self.shield = ShieldLayer(output_dim, constraints_file)
@@ -225,14 +230,23 @@ def train_epoch(
     opt: optim.Optimizer,
     constraints: list[Constraint],
     device: torch.device,
+    mask_method: bool = False
 ):
+    # TODO: Remove this for masking!!
+    mask_method = False
+
     model.train()
     tot_loss, batches, sat_batches = 0.0, 0, 0
     for xb, yb in loader:
         xb, yb = xb.to(device), yb.to(device)
         opt.zero_grad()
-        out = model(xb)
-        loss = F.mse_loss(out, yb)
+        if mask_method:
+            out = model(xb, yb)
+            shield_masks = model.shield.masks
+            loss = adjusted_constraint_loss(out, yb, shield_masks)
+        else:
+            out = model(xb)
+            loss = F.mse_loss(out, yb)
         loss.backward()
         opt.step()
 
@@ -311,7 +325,7 @@ def main(args):
             opt = (optim.Adam if args.optimizer == "adam" else optim.SGD)(model.parameters(), lr=args.lr)
 
             for epoch in range(1, args.epochs + 1):
-                tloss, tsat, _ = train_epoch(model, loaders["train"], opt, constraints, device)
+                tloss, tsat, _ = train_epoch(model, loaders["train"], opt, constraints, device, args.mask_method)
                 vrmse, vsat, _ = eval_epoch(model, loaders["val"], constraints, scaler, device)
                 logger.info(f"{name:>24} | Epoch {epoch:02d}/{args.epochs} | "
                             f"loss {tloss:.4f} | val RMSE {vrmse:.4f} | val sat {vsat}")
@@ -336,4 +350,5 @@ if __name__ == "__main__":
     p.add_argument("--trials", type=int, default=10)
     p.add_argument("--optimizer", choices=["adam", "sgd"], default="adam")
     p.add_argument("--base-arch", choices=["shallow", "deep"], default="shallow")
+    p.add_argument("--mask-method", action="store_true")
     main(p.parse_args())
