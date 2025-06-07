@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-# TODO: Cite the paper: A Unified Framework for Adversarial Attack and Defense in Constrained Feature Space for moeva data
-
 from __future__ import annotations
-import argparse, logging, random, sys, time
+import argparse, logging, random, sys, time, os
 from pathlib import Path
 
 import numpy as np
@@ -27,6 +25,8 @@ from pishield.linear_requirements.shield_layer import ShieldLayer
 from pishield.linear_requirements.adjusted_constraint_loss import adjusted_constraint_loss
 from kkt_ste import KKTShieldSTE, build_constraint_matrix
 
+os.environ["PYTHONHASHSEED"] = "0"
+torch.use_deterministic_algorithms(True)
 
 def setup_logging(log_file: Path) -> logging.Logger:
     logger = logging.getLogger()
@@ -36,6 +36,7 @@ def setup_logging(log_file: Path) -> logging.Logger:
     fh = logging.FileHandler(log_file, mode="w")
     fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s: %(message)s"))
     logger.addHandler(fh)
+    logger.info(f"Env  → Python {sys.version.split()[0]}, PyTorch {torch.__version__}, CUDA {torch.version.cuda or 'CPU'}")
     return logger
 
 
@@ -45,9 +46,6 @@ def set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-        torch.backends.cudnn.benchmark = False
-        torch.backends.cudnn.deterministic = True
-
 
 def get_device(precedence: tuple[str, ...] = ("cuda", "mps", "cpu")) -> torch.device:
     for dev in precedence:
@@ -153,11 +151,14 @@ def parse_numpy_data(logger: logging.Logger, numpy_data: bool,
 def make_dataloaders(data, batch_size: int) -> dict[str, DataLoader]:
     loaders: dict[str, DataLoader] = {}
     for name, (X, y) in zip(("train", "val", "test"), data):
+        generator = torch.Generator()
+        generator.manual_seed(0)
         loaders[name] = DataLoader(
             TensorDataset(X, y),
             batch_size=batch_size,
             shuffle=(name == "train"),
-            drop_last=False
+            drop_last=False,
+            generator=generator
         )
     return loaders
 
@@ -319,7 +320,11 @@ def main(args):
         log_file_name = f"{args.base_arch}_log.txt"
 
     logger = setup_logging(out_dir / log_file_name)
-    logger.info(f"Using device: {device}")
+    logger.info(f"Experiment Configuration:")
+    logger.info(f"  Python: {sys.version}")
+    logger.info(f"  PyTorch: {torch.__version__}")
+    logger.info(f"  Device: {device}")
+    logger.info(f"  Arguments: {args}")
     logger.info(f"Masking Method Enabled: {args.mask_method}")
 
     if args.numpy_data:
@@ -341,7 +346,7 @@ def main(args):
         results_file_name = f"final_rmses_{args.base_arch}.csv"
 
     results_csv = out_dir / results_file_name
-    results_csv.write_text("model,trial,test_rmse,test_sat\n")
+    results_csv.write_text("model,trial,test_rmse,test_sat,total_time\n")
 
     base_cls = ARCH_MAP[args.base_arch]
 

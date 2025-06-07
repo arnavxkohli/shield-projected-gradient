@@ -1,4 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -euo pipefail
+export PYTHONHASHSEED=0
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
+
+set -o allexport
+source .env
+set +o allexport
+
+function send_notification {
+    status=$?
+    if [ $status -eq 0 ]; then
+        subject="✅ Experiment Succeeded"
+    else
+        subject="❌ Experiment Failed"
+    fi
+    echo "Experiment completed with status $status at $(date '+%Y-%m-%d %H:%M:%S')." | mail -s "$subject" "$EMAIL_NOTIFY"
+}
+
+trap send_notification EXIT
 
 datasets=("url" "faulty-steel-plates" "news" "lcld")
 architectures=("shallow" "deep")
@@ -11,12 +31,15 @@ for dataset in "${datasets[@]}"; do
                 echo "Skipping masked method for dataset=$dataset"
                 continue
             fi
-            cmd="python3 model_run.py --data-dir $dataset --base-arch $arch $mask"
-            if [ "$dataset" = "lcld" ]; then
-                cmd="$cmd --train-fraction 0.1"
+            cmd=(python3 model_run.py --data-dir "$dataset" --base-arch "$arch")
+            if [ -n "$mask" ]; then
+                cmd+=("$mask")
             fi
-            echo "Running: $cmd"
-            eval $cmd
+            if [ "$dataset" = "lcld" ]; then
+                cmd+=(--train-fraction 0.1)
+            fi
+            echo "Running: ${cmd[*]}"
+            "${cmd[@]}"
         done
     done
 done
