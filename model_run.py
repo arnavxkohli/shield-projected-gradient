@@ -59,16 +59,14 @@ def get_device(precedence: tuple[str, ...] = ("cuda", "mps", "cpu")) -> torch.de
 
 
 def load_data(
-    csv_path: Path,
+    df: pd.DataFrame,
     constraints_file: Path,
-    *,
     test_size: float,
     val_size: float,
     seed: int,
     scale_targets: bool,
     train_fraction: float,
 ):
-    df = pd.read_csv(csv_path)
 
     for col in df.select_dtypes(object).columns:
         df[col] = df[col].apply(lambda x: hash(x) % 10**6)
@@ -123,6 +121,33 @@ def load_data(
         len(target_cols),
         target_scaler,
     )
+
+
+def parse_numpy_data(logger: logging.Logger, numpy_data: bool, 
+                     data_list: list[str]) -> pd.DataFrame:
+    if not numpy_data:
+        logger.warning("Numpy data not requested, returning empty DataFrame.")
+        return pd.DataFrame()
+
+    if len(data_list) != 4:
+        raise ValueError("Expected exactly 4 numpy files: X_train, X_test, y_train, y_test")
+    
+    X_train = np.load(data_list[0])
+    X_test = np.load(data_list[1])
+    y_train = np.load(data_list[2])
+    y_test = np.load(data_list[3])
+
+    if y_train.ndim == 1:
+        y_train = y_train.reshape(-1, 1)
+
+    if y_test.ndim == 1:
+        y_test = y_test.reshape(-1, 1)
+
+    training_data = np.hstack((X_train, y_train))
+    test_data = np.hstack((X_test, y_test))
+    all_data = np.vstack((training_data, test_data))
+
+    return pd.DataFrame(all_data, columns=[f"y_{i}" for i in range(all_data.shape[1])])
 
 
 def make_dataloaders(data, batch_size: int) -> dict[str, DataLoader]:
@@ -232,9 +257,6 @@ def train_epoch(
     device: torch.device,
     mask_method: bool = False
 ):
-    # TODO: Remove this for masking!!
-    mask_method = False
-
     model.train()
     tot_loss, batches, sat_batches = 0.0, 0, 0
     for xb, yb in loader:
@@ -291,10 +313,34 @@ def main(args):
     out_dir = Path("out") / args.data_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    logger = setup_logging(out_dir / f"{args.base_arch}_log.txt")
-    logger.info(f"Using device: {device}")
+    if args.mask_method:
+        log_file_name = f"{args.base_arch}_mask_log.txt"
+    else:
+        log_file_name = f"{args.base_arch}_log.txt"
 
-    results_csv = out_dir / f"final_rmses_{args.base_arch}.csv"
+    logger = setup_logging(out_dir / log_file_name)
+    logger.info(f"Using device: {device}")
+    logger.info(f"Masking Method Enabled: {args.mask_method}")
+
+    if args.numpy_data:
+        logger.info("Loading data from numpy files...")
+        df = parse_numpy_data(logger, args.numpy_data, args.data_list)
+        if df.empty:
+            logger.error("No data loaded from numpy files. Exiting.")
+            sys.exit(1)
+    else:
+        logger.info("Loading data from CSV file...")
+        df = pd.read_csv(Path("data") / args.data_dir / "data.csv")
+        if df.empty:
+            logger.error("No data loaded from CSV file. Exiting.")
+            sys.exit(1)
+
+    if args.mask_method:
+        results_file_name = f"final_rmses_masked_{args.base_arch}.csv"
+    else:
+        results_file_name = f"final_rmses_{args.base_arch}.csv"
+
+    results_csv = out_dir / results_file_name
     results_csv.write_text("model,trial,test_rmse,test_sat\n")
 
     base_cls = ARCH_MAP[args.base_arch]
@@ -305,7 +351,7 @@ def main(args):
         logger.info(f"\n=== Trial {trial + 1}/{args.trials} | Seed={seed} ===")
 
         data = load_data(
-            Path("data") / args.data_dir / "data.csv",
+            df,
             Path("data") / args.data_dir / "constraints.txt",
             test_size=args.test_size,
             val_size=args.val_size,
@@ -315,25 +361,45 @@ def main(args):
         )
         (train_d, val_d, test_d, constraints, in_dim, out_dim, scaler) = data
         loaders = make_dataloaders((train_d, val_d, test_d), args.batch_size)
-
-        for name, ctor in [
+        
+        model_list = [
             (base_cls.__name__.capitalize(), lambda: base_cls(in_dim, out_dim)),
             ("ShieldedMLP", lambda: ShieldedMLP(base_cls(in_dim, out_dim), out_dim, Path("data") / args.data_dir / "constraints.txt")),
-            ("ShieldedMLPWithKKTSTE", lambda: ShieldedMLPWithKKTSTE(base_cls(in_dim, out_dim), out_dim, Path("data") / args.data_dir / "constraints.txt")),
-        ]:
+        ]
+        
+        if args.mask_method:
+            model_list.append(
+                ("ShieldedMLPMasked", lambda: ShieldedMLP(base_cls(in_dim, out_dim), out_dim, Path("data") / args.data_dir / "constraints.txt"))
+            )
+        else:
+            model_list.append(
+                ("ShieldedMLPKKTSTE", lambda: ShieldedMLPWithKKTSTE(base_cls(in_dim, out_dim), out_dim, Path("data") / args.data_dir / "constraints.txt"))
+            )
+
+        for name, ctor in model_list:
+            total_start = time.time()
+
             model = ctor().to(device)
             opt = (optim.Adam if args.optimizer == "adam" else optim.SGD)(model.parameters(), lr=args.lr)
 
             for epoch in range(1, args.epochs + 1):
-                tloss, tsat, _ = train_epoch(model, loaders["train"], opt, constraints, device, args.mask_method)
+                epoch_start = time.time()
+
+                tloss, tsat, _ = train_epoch(model, loaders["train"], opt, constraints, device, 
+                                             name == "ShieldedMLPMasked")
                 vrmse, vsat, _ = eval_epoch(model, loaders["val"], constraints, scaler, device)
-                logger.info(f"{name:>24} | Epoch {epoch:02d}/{args.epochs} | "
-                            f"loss {tloss:.4f} | val RMSE {vrmse:.4f} | val sat {vsat}")
+
+                epoch_total = time.time() - epoch_start
+                logger.info(f"{name} | Epoch {epoch:02d}/{args.epochs} | "
+                            f"loss {tloss:.4f} | val RMSE {vrmse:.4f} | val sat {vsat}"
+                            f" | Epoch Time: {epoch_total:.2f}s")
 
             trmse, tsat, _ = eval_epoch(model, loaders["test"], constraints, scaler, device)
-            logger.info(f"{name:>24} | TEST RMSE {trmse:.4f} | test sat {tsat}")
+            logger.info(f"{name} | TEST RMSE {trmse:.4f} | test sat {tsat}")
+
+            total_time = time.time() - total_start
             with results_csv.open("a") as f:
-                f.write(f"{name},{trial},{trmse:.4f},{tsat}\n")
+                f.write(f"{name},{trial},{trmse:.4f},{tsat},{total_time:.2f}\n")
 
 
 if __name__ == "__main__":
@@ -351,4 +417,7 @@ if __name__ == "__main__":
     p.add_argument("--optimizer", choices=["adam", "sgd"], default="adam")
     p.add_argument("--base-arch", choices=["shallow", "deep"], default="shallow")
     p.add_argument("--mask-method", action="store_true")
+    p.add_argument("--numpy-data", action="store_true")
+    p.add_argument("--data-list", nargs="+", 
+                   default=["X_train.npy", "X_test.npy", "y_train.npy", "y_test.npy"])
     main(p.parse_args())
