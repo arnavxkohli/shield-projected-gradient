@@ -43,3 +43,5 @@ for dataset in "${datasets[@]}"; do
         done
     done
 done
+
+python3 src/analyze_rmse.py

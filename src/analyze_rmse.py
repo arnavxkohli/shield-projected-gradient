@@ -20,21 +20,23 @@ def analyze_model_performance(csv_path: str, dataset_name: str, arch: str, metho
     shield_rmse = df_shield["test_rmse"].values
     other_rmse = df_other["test_rmse"].values
 
-    improvement = shield_rmse - other_rmse
-    t_stat, p_val = ttest_rel(shield_rmse, other_rmse)
+    improvement = other_rmse - shield_rmse
+    percent_change = (improvement.mean() / shield_rmse.mean()) * 100  # << added
+
+    t_stat, p_val = ttest_rel(other_rmse, shield_rmse)
     cohens = improvement.mean() / improvement.std(ddof=1)
 
     result = {
         "Dataset": dataset_name,
         "Architecture": arch,
         "Method": method,
-        "Shielded Mean": round(shield_rmse.mean(), 6),
-        f"{method} Mean": round(other_rmse.mean(), 6),
-        "Improvement (Shield - Method)": round(improvement.mean(), 6),
-        "t-statistic": round(t_stat, 6),
-        "p-value": round(p_val, 6),
+        "Shielded Mean": round(shield_rmse.mean(), 4),
+        "Method Mean": round(other_rmse.mean(), 4),
+        "Percent Change (Method - Shield%)": round(percent_change, 2),
+        "t-statistic": round(t_stat, 3),
+        "p-value": round(p_val, 4),
         "Significant @ 0.05": p_val < 0.05,
-        "Cohen's d": round(cohens, 6)
+        "Cohen's d": round(cohens, 3)
     }
 
     return result
