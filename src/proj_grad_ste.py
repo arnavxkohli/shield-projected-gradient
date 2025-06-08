@@ -159,11 +159,11 @@ class ProjGradSTE(Function):
 
                 try:
                     if torch.linalg.cond(lhs) > condition_threshold:
-                        lagrangian = torch.linalg.lstsq(lhs, rhs, driver='gelsd').solution  # shape: (num_active, 1)
+                        lagrangian = torch.linalg.lstsq(lhs, rhs).solution  # shape: (num_active, 1)
                     else:
                         lagrangian = torch.linalg.solve(lhs, rhs)  # shape: (num_active, 1)
                 except RuntimeError:
-                    lagrangian = torch.linalg.lstsq(lhs, rhs, driver='gelsd').solution  # shape: (num_active, 1)
+                    lagrangian = torch.linalg.lstsq(lhs, rhs).solution  # shape: (num_active, 1)
 
                 projection = active_matrix.T @ lagrangian  # shape: (num_vars, 1)
                 grad_input[i] -= projection.squeeze(1)  # shape: (num_vars,)

@@ -1,0 +1,21 @@
+2025-06-08 20:06:57,475 INFO: Env  → Python 3.12.3, PyTorch 2.7.0+cu126, CUDA 12.6
+2025-06-08 20:06:57,475 INFO: Experiment Configuration:
+2025-06-08 20:06:57,476 INFO:   Python: 3.12.3 (main, Feb  4 2025, 14:48:35) [GCC 13.3.0]
+2025-06-08 20:06:57,476 INFO:   PyTorch: 2.7.0+cu126
+2025-06-08 20:06:57,476 INFO:   Device: cuda
+2025-06-08 20:06:57,476 INFO:   Arguments: Namespace(data_dir='botnet', batch_size=64, seed=42, test_size=0.2, val_size=0.125, scale_targets=False, train_fraction=1.0, numpy_data=True, data_list=['X_train.npy', 'X_test.npy', 'y_train.npy', 'y_test.npy'], max_batches=100, summary_only=False)
+2025-06-08 20:06:57,476 INFO: Loading data from numpy files...
+2025-06-08 20:07:08,261 INFO: Starting gradient analysis...
+2025-06-08 20:14:10,102 INFO: Gradient analysis results saved to out/botnet/gradient_analysis_results.csv
+2025-06-08 20:14:10,109 INFO: Gradient analysis summary (mean ± std) saved to out/botnet/gradient_analysis_summary.csv
+2025-06-08 20:14:10,114 INFO: 
+Summary Statistics (mean ± std):
+                          mean      std
+baseline_vs_shielded    0.8336   0.2803
+baseline_vs_masked      0.9473   0.1026
+baseline_vs_proj        0.9942   0.0168
+baseline_violations   361.9900   0.1000
+shielded_violations     0.0000   0.0000
+masked_violations       4.0000   0.0000
+proj_violations         0.0000   0.0000
+batch_idx              49.5000  29.0115

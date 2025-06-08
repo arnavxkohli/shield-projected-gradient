@@ -9,6 +9,7 @@ from typing import Dict, List
 import numpy as np
 import pandas as pd
 import torch
+from pathlib import Path
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -114,19 +115,21 @@ def load_data(
     )
 
 
-def parse_numpy_data(logger: logging.Logger, numpy_data: bool, 
+def parse_numpy_data(logger: logging.Logger, data_dir: Path | None, 
                      data_list: list[str]) -> pd.DataFrame:
-    if not numpy_data:
+    if data_dir is None:
         logger.warning("Numpy data not requested, returning empty DataFrame.")
         return pd.DataFrame()
 
     if len(data_list) != 4:
         raise ValueError("Expected exactly 4 numpy files: X_train, X_test, y_train, y_test")
-    
-    X_train = np.load(data_list[0])
-    X_test = np.load(data_list[1])
-    y_train = np.load(data_list[2])
-    y_test = np.load(data_list[3])
+
+    load_from_path = lambda path: np.load(data_dir / path)
+
+    X_train = load_from_path(data_list[0])
+    X_test = load_from_path(data_list[1])
+    y_train = load_from_path(data_list[2])
+    y_test = load_from_path(data_list[3])
 
     if y_train.ndim == 1:
         y_train = y_train.reshape(-1, 1)

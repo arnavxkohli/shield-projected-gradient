@@ -42,7 +42,8 @@ def main(args):
 
     if args.numpy_data:
         logger.info("Loading data from numpy files...")
-        df = parse_numpy_data(logger, args.numpy_data, args.data_list)
+        numpy_data_dir = None if not args.numpy_data else Path("data") / args.data_dir
+        df = parse_numpy_data(logger, numpy_data_dir, args.data_list)
         if df.empty:
             logger.error("No data loaded from numpy files. Exiting.")
             sys.exit(1)

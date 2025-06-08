@@ -1,0 +1,9 @@
+,mean,std
+baseline_vs_shielded,0.191,0.005
+baseline_vs_masked,0.3309,0.0555
+baseline_vs_proj,0.9853,0.003
+baseline_violations,5.0,0.0
+shielded_violations,0.0,0.0
+masked_violations,0.4167,0.5
+proj_violations,0.0,0.0
+batch_idx,17.5,10.5357

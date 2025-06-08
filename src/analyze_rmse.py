@@ -21,7 +21,7 @@ def analyze_model_performance(csv_path: str, dataset_name: str, arch: str, metho
     other_rmse = df_other["test_rmse"].values
 
     improvement = other_rmse - shield_rmse
-    percent_change = (improvement.mean() / shield_rmse.mean()) * 100  # << added
+    percent_change = (improvement.mean() / shield_rmse.mean()) * 100
 
     t_stat, p_val = ttest_rel(other_rmse, shield_rmse)
     cohens = improvement.mean() / improvement.std(ddof=1)

@@ -31,7 +31,7 @@ for dataset in "${datasets[@]}"; do
                 echo "Skipping masked method for dataset=$dataset"
                 continue
             fi
-            cmd=(python3 model_run.py --data-dir "$dataset" --base-arch "$arch")
+            cmd=(python3 src/run_rmse.py --data-dir "$dataset" --base-arch "$arch")
             if [ -n "$mask" ]; then
                 cmd+=("$mask")
             fi
