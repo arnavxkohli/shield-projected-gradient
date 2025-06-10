@@ -1,15 +1,15 @@
 Dataset,Architecture,Method,Shielded Mean RMSE,Method Mean RMSE,Percent Change (Method - Shield%),t-statistic,p-value,Significant @ 0.05,Cohen's d,Shielded Avg Time (s),Method Avg Time (s)
 URL,Shallow,Projected,24.3193,697929.6969,2869760.5,2.751,0.0224,True,0.87,38.3,209.67
-URL,Deep,Projected,11.6895,11.5025,-1.6,-17.203,0.0,True,-5.44,40.22,133.94
+URL,Deep,Projected,11.6844,11.5025,-1.56,-12.939,0.0,True,-4.092,39.98,103.38
 Faulty Steel Plates,Shallow,Projected,1317167.55,1316893.0875,-0.02,-1.961,0.0815,False,-0.62,5.31,35.78
-Faulty Steel Plates,Deep,Projected,1322611.7125,1322612.4375,0.0,3.713,0.0048,True,1.174,5.63,32.57
+Faulty Steel Plates,Deep,Projected,1322607.925,1322609.95,0.0,6.795,0.0001,True,2.149,9.49,38.77
 LCLD,Shallow,Projected,7987.5182,8942.0342,11.95,2.461,0.0361,True,0.778,288.33,2233.63
-LCLD,Deep,Projected,7893.5277,7890.5781,-0.04,-0.193,0.8514,False,-0.061,322.32,1089.13
+LCLD,Deep,Projected,7911.995,7891.153,-0.26,-1.418,0.19,False,-0.448,334.11,1425.68
 News,Shallow,Projected,11703.1976,11455.604,-2.12,-0.997,0.3447,False,-0.315,108.72,709.68
-News,Deep,Projected,14390.717,14325.5132,-0.45,-24.57,0.0,True,-7.77,116.3,708.4
+News,Deep,Projected,14388.523,14324.6592,-0.44,-53.521,0.0,True,-16.925,120.72,714.99
 URL,Shallow,Masked,24.3193,20.8442,-14.29,-0.746,0.4746,False,-0.236,37.25,320.12
-URL,Deep,Masked,11.6895,14.1638,21.17,40.203,0.0,True,12.713,39.89,320.73
+URL,Deep,Masked,11.6844,14.1661,21.24,38.401,0.0,True,12.144,40.15,323.87
 Faulty Steel Plates,Shallow,Masked,1317167.55,1317283.8625,0.01,0.485,0.6392,False,0.153,5.36,18.11
-Faulty Steel Plates,Deep,Masked,1322611.7125,1322611.5875,-0.0,-0.591,0.5693,False,-0.187,5.69,18.94
+Faulty Steel Plates,Deep,Masked,1322607.925,1322608.125,0.0,0.793,0.4482,False,0.251,7.24,39.23
 News,Shallow,Masked,11703.1976,15321.2551,30.92,17.367,0.0,True,5.492,107.41,407.19
-News,Deep,Masked,14390.717,15315.305,6.42,112.401,0.0,True,35.544,119.75,413.06
+News,Deep,Masked,14388.523,15300.3178,6.34,129.111,0.0,True,40.829,121.35,418.62

@@ -155,6 +155,8 @@ def make_dataloaders(data, batch_size: int) -> dict[str, DataLoader]:
             batch_size=batch_size,
             shuffle=(name == "train"),
             drop_last=False,
-            generator=generator
+            generator=generator,
+            pin_memory=torch.cuda.is_available(),
+            num_workers=0,
         )
     return loaders
