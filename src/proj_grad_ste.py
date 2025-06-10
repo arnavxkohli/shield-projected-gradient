@@ -103,7 +103,7 @@ class ProjGradSTE(Function):
     ) -> Tuple[torch.Tensor, None, None, None]:
         """
         Backward pass that projects the gradient onto the feasible tangent space
-        defined by the active constraints using a KKT-style projection.
+        defined by the active constraints using a projection.
 
         The shield layer performs a non-differentiable projection in the forward
         pass. To allow gradient-based optimization, we approximate the Jacobian 

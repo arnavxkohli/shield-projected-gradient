@@ -1,14 +1,14 @@
-2025-06-08 20:06:01,160 INFO: Env  → Python 3.12.3, PyTorch 2.7.0+cu126, CUDA 12.6
-2025-06-08 20:06:01,160 INFO: Experiment Configuration:
-2025-06-08 20:06:01,160 INFO:   Python: 3.12.3 (main, Feb  4 2025, 14:48:35) [GCC 13.3.0]
-2025-06-08 20:06:01,161 INFO:   PyTorch: 2.7.0+cu126
-2025-06-08 20:06:01,161 INFO:   Device: cuda
-2025-06-08 20:06:01,161 INFO:   Arguments: Namespace(data_dir='url', batch_size=64, seed=42, test_size=0.2, val_size=0.125, scale_targets=False, train_fraction=1.0, numpy_data=False, data_list=['X_train.npy', 'X_test.npy', 'y_train.npy', 'y_test.npy'], max_batches=100, summary_only=False)
-2025-06-08 20:06:01,161 INFO: Loading data from CSV file...
-2025-06-08 20:06:01,390 INFO: Starting gradient analysis...
-2025-06-08 20:06:07,037 INFO: Gradient analysis results saved to out/url/gradient_analysis_results.csv
-2025-06-08 20:06:07,046 INFO: Gradient analysis summary (mean ± std) saved to out/url/gradient_analysis_summary.csv
-2025-06-08 20:06:07,049 INFO: 
+2025-06-09 17:34:59,129 INFO: Env  → Python 3.12.3, PyTorch 2.7.0+cu126, CUDA 12.6
+2025-06-09 17:34:59,129 INFO: Experiment Configuration:
+2025-06-09 17:34:59,129 INFO:   Python: 3.12.3 (main, Feb  4 2025, 14:48:35) [GCC 13.3.0]
+2025-06-09 17:34:59,129 INFO:   PyTorch: 2.7.0+cu126
+2025-06-09 17:34:59,130 INFO:   Device: cuda
+2025-06-09 17:34:59,130 INFO:   Arguments: Namespace(data_dir='url', batch_size=64, seed=42, test_size=0.2, val_size=0.125, scale_targets=False, train_fraction=1.0, numpy_data=False, data_list=['X_train.npy', 'X_test.npy', 'y_train.npy', 'y_test.npy'], max_batches=100, summary_only=False)
+2025-06-09 17:34:59,130 INFO: Loading data from CSV file...
+2025-06-09 17:35:05,158 INFO: Starting gradient analysis...
+2025-06-09 17:35:41,355 INFO: Gradient analysis results saved to out/url/gradient_analysis_results.csv
+2025-06-09 17:35:41,370 INFO: Gradient analysis summary (mean ± std) saved to out/url/gradient_analysis_summary.csv
+2025-06-09 17:35:41,409 INFO: 
 Summary Statistics (mean ± std):
                          mean      std
 baseline_vs_shielded   0.1910   0.0050

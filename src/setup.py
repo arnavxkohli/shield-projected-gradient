@@ -61,7 +61,8 @@ def load_data(
 ):
 
     for col in df.select_dtypes(object).columns:
-        df[col] = df[col].apply(lambda x: hash(x) % 10**6)
+        if df[col].apply(lambda x: isinstance(x, str)).all():
+            df[col] = df[col].apply(lambda x: hash(x) % 10**6)
 
     ordering, constraints = parse_constraints_file(constraints_file)
     ordering, constraints, rev_map = remap_constraint_variables(ordering, constraints)
