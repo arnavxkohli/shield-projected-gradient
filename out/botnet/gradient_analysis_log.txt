@@ -1,20 +1,20 @@
-2025-06-09 17:37:40,692 INFO: Env  → Python 3.12.3, PyTorch 2.7.0+cu126, CUDA 12.6
-2025-06-09 17:37:40,693 INFO: Experiment Configuration:
-2025-06-09 17:37:40,693 INFO:   Python: 3.12.3 (main, Feb  4 2025, 14:48:35) [GCC 13.3.0]
-2025-06-09 17:37:40,693 INFO:   PyTorch: 2.7.0+cu126
-2025-06-09 17:37:40,693 INFO:   Device: cuda
-2025-06-09 17:37:40,693 INFO:   Arguments: Namespace(data_dir='botnet', batch_size=64, seed=42, test_size=0.2, val_size=0.125, scale_targets=False, train_fraction=1.0, numpy_data=True, data_list=['X_train.npy', 'X_test.npy', 'y_train.npy', 'y_test.npy'], max_batches=100, summary_only=False)
-2025-06-09 17:37:40,693 INFO: Loading data from numpy files...
-2025-06-09 17:38:51,385 INFO: Starting gradient analysis...
-2025-06-09 17:46:22,453 INFO: Gradient analysis results saved to out/botnet/gradient_analysis_results.csv
-2025-06-09 17:46:22,510 INFO: Gradient analysis summary (mean ± std) saved to out/botnet/gradient_analysis_summary.csv
-2025-06-09 17:46:22,552 INFO: 
+2025-06-10 19:15:36,573 INFO: Env  → Python 3.12.3, PyTorch 2.7.0+cu126, CUDA 12.6
+2025-06-10 19:15:36,573 INFO: Experiment Configuration:
+2025-06-10 19:15:36,573 INFO:   Python: 3.12.3 (main, Feb  4 2025, 14:48:35) [GCC 13.3.0]
+2025-06-10 19:15:36,573 INFO:   PyTorch: 2.7.0+cu126
+2025-06-10 19:15:36,573 INFO:   Device: cuda
+2025-06-10 19:15:36,573 INFO:   Arguments: Namespace(data_dir='botnet', batch_size=64, seed=42, test_size=0.2, val_size=0.125, scale_targets=False, train_fraction=1.0, numpy_data=True, data_list=['X_train.npy', 'X_test.npy', 'y_train.npy', 'y_test.npy'], max_batches=100, summary_only=False)
+2025-06-10 19:15:36,574 INFO: Loading data from numpy files...
+2025-06-10 19:16:37,040 INFO: Starting gradient analysis...
+2025-06-10 19:24:05,821 INFO: Gradient analysis results saved to out/botnet/gradient_analysis_results.csv
+2025-06-10 19:24:06,577 INFO: Gradient analysis summary (mean ± std) saved to out/botnet/gradient_analysis_summary.csv
+2025-06-10 19:24:06,761 INFO: 
 Summary Statistics (mean ± std):
                           mean      std
-baseline_vs_shielded    0.8336   0.2803
-baseline_vs_masked      0.9473   0.1026
-baseline_vs_proj        0.9942   0.0168
-baseline_violations   361.9900   0.1000
+baseline_vs_shielded    0.8159   0.2801
+baseline_vs_masked      0.9332   0.1255
+baseline_vs_proj        0.9916   0.0229
+baseline_violations   362.0000   0.0000
 shielded_violations     0.0000   0.0000
 masked_violations       4.0000   0.0000
 proj_violations         0.0000   0.0000

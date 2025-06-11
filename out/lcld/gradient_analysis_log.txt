@@ -1,21 +1,21 @@
-2025-06-09 17:36:38,702 INFO: Env  → Python 3.12.3, PyTorch 2.7.0+cu126, CUDA 12.6
-2025-06-09 17:36:38,703 INFO: Experiment Configuration:
-2025-06-09 17:36:38,703 INFO:   Python: 3.12.3 (main, Feb  4 2025, 14:48:35) [GCC 13.3.0]
-2025-06-09 17:36:38,703 INFO:   PyTorch: 2.7.0+cu126
-2025-06-09 17:36:38,703 INFO:   Device: cuda
-2025-06-09 17:36:38,703 INFO:   Arguments: Namespace(data_dir='lcld', batch_size=64, seed=42, test_size=0.2, val_size=0.125, scale_targets=False, train_fraction=1.0, numpy_data=False, data_list=['X_train.npy', 'X_test.npy', 'y_train.npy', 'y_test.npy'], max_batches=100, summary_only=False)
-2025-06-09 17:36:38,703 INFO: Loading data from CSV file...
-2025-06-09 17:37:21,610 INFO: Starting gradient analysis...
-2025-06-09 17:37:31,455 INFO: Gradient analysis results saved to out/lcld/gradient_analysis_results.csv
-2025-06-09 17:37:31,464 INFO: Gradient analysis summary (mean ± std) saved to out/lcld/gradient_analysis_summary.csv
-2025-06-09 17:37:31,467 INFO: 
+2025-06-10 19:13:46,059 INFO: Env  → Python 3.12.3, PyTorch 2.7.0+cu126, CUDA 12.6
+2025-06-10 19:13:46,059 INFO: Experiment Configuration:
+2025-06-10 19:13:46,059 INFO:   Python: 3.12.3 (main, Feb  4 2025, 14:48:35) [GCC 13.3.0]
+2025-06-10 19:13:46,059 INFO:   PyTorch: 2.7.0+cu126
+2025-06-10 19:13:46,059 INFO:   Device: cuda
+2025-06-10 19:13:46,059 INFO:   Arguments: Namespace(data_dir='lcld', batch_size=64, seed=42, test_size=0.2, val_size=0.125, scale_targets=False, train_fraction=1.0, numpy_data=False, data_list=['X_train.npy', 'X_test.npy', 'y_train.npy', 'y_test.npy'], max_batches=100, summary_only=False)
+2025-06-10 19:13:46,059 INFO: Loading data from CSV file...
+2025-06-10 19:14:21,298 INFO: Starting gradient analysis...
+2025-06-10 19:14:50,282 INFO: Gradient analysis results saved to out/lcld/gradient_analysis_results.csv
+2025-06-10 19:14:50,302 INFO: Gradient analysis summary (mean ± std) saved to out/lcld/gradient_analysis_summary.csv
+2025-06-10 19:14:50,342 INFO: 
 Summary Statistics (mean ± std):
-                        mean      std
-baseline_vs_shielded   1.000   0.0000
-baseline_vs_masked     1.000   0.0000
-baseline_vs_proj       0.937   0.0324
-baseline_violations    3.000   0.0000
-shielded_violations    0.000   0.0000
-masked_violations      0.000   0.0000
-proj_violations        0.000   0.0000
-batch_idx             49.500  29.0115
+                         mean      std
+baseline_vs_shielded   1.0000   0.0000
+baseline_vs_masked     1.0000   0.0000
+baseline_vs_proj       0.9382   0.0366
+baseline_violations    3.0000   0.0000
+shielded_violations    0.0000   0.0000
+masked_violations      0.0000   0.0000
+proj_violations        0.0000   0.0000
+batch_idx             49.5000  29.0115

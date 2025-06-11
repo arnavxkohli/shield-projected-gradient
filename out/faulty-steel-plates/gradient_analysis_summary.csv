@@ -1,8 +1,8 @@
 ,mean,std
-baseline_vs_shielded,0.8617,0.0683
-baseline_vs_masked,0.8617,0.0683
-baseline_vs_proj,0.9915,0.0047
-baseline_violations,4.0,0.0
+baseline_vs_shielded,0.788,0.0698
+baseline_vs_masked,0.788,0.0698
+baseline_vs_proj,0.9962,0.006
+baseline_violations,3.8571,0.378
 shielded_violations,0.0,0.0
 masked_violations,0.0,0.0
 proj_violations,0.0,0.0
