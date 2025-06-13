@@ -53,8 +53,8 @@ Datasets for this project can be downloaded from the following link:
 For convenience, a script is provided to download the datasets directly. This can be run from the **root directory** of the repository with:
 
 ```bash
-chmod +x scripts/download_data.sh
-scripts/download_data.sh
+chmod +x scripts/setup_data.sh
+scripts/setup_data.sh
 ```
 
 ## Reproducing Results
