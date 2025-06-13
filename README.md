@@ -2,23 +2,7 @@
 
 This repository serves as the codebase for my Final Year Project titled "Improving Backpropagation in the PiShield package". It contains the figures, logs and metrics collected over the course of the project, as well as the code used to generate these results.
 
-## PiShield Repository
-
-Due to changes made to the PiShield package, this repository is dependent on a fork of the original PiShield repository. The fork can be found here: [PiShield Fork](https://github.com/arnavxkohli/PiShield).
-
-**It is vital to use this fork for the code to work correctly.**
-
-This can be cloned using the following command:
-
-```bash
-git clone https://github.com/arnavxkohli/PiShield.git
-```
-
-In addition to this, the relevant packages are included in the `requirements.txt` file. To install these, run:
-
-```bash
-pip install -r requirements.txt
-```
+## Virtual Environments
 
 It is recommended to use a virtual environment for this project to avoid conflicts with other packages. You can create a virtual environment using the following command:
 
@@ -41,6 +25,25 @@ venv\Scripts\activate
 ```
 
 Note that all testing was done on a Linux machine.
+
+## PiShield Repository
+
+Due to changes made to the PiShield package, this repository is dependent on a fork of the original PiShield repository. The fork can be found here: [PiShield Fork](https://github.com/arnavxkohli/PiShield).
+
+**It is vital to use this fork for the code to work correctly.**
+
+This can be cloned and installed using the following command:
+
+```bash
+git clone https://github.com/arnavxkohli/PiShield.git PiShield
+pip install PiShield/
+```
+
+In addition to this, the remaining relevant packages are included in the `requirements.txt` file. To install these, run:
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Data Download
 
