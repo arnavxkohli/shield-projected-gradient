@@ -70,3 +70,9 @@ scripts/run_grad_analysis.sh
 ```
 
 The plots can be generated with the notebook `src/plot_rmse.ipynb`. These are included in `figures/` for convenience.
+
+## Presentation Link
+
+For those carrying out evaluation, the presentation can be found [here](https://imperiallondon-my.sharepoint.com/:p:/g/personal/sk1421_ic_ac_uk/EfYXjAhxklpFkQN_O5ERJWMB3smAnRib4Dvs8wzsgZYL-w?e=u9fDm8)
+
+**Note**: This section was added after the report deadline, and is not relevant to the code related to the report, it is presented in case it is helpful in providing context to the project, alongside the report.
